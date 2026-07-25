@@ -1,0 +1,9 @@
+{
+  "name": "rakshaai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RakshaAI - real-time scam call and UPI fraud guardian",
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}

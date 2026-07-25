@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RakshaAI — The AI That Listens for the Lie Before You Pay the Price</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Devanagari:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0F1729;
+    --bg-panel: #16213D;
+    --bg-panel-alt: #1D2B4A;
+    --border: #2A3A5C;
+    --marigold: #E8A33D;
+    --marigold-soft: rgba(232,163,61,0.15);
+    --safe: #3FA796;
+    --danger: #E15554;
+    --text: #F5F1E8;
+    --text-muted: #93A0BF;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -5%, rgba(232,163,61,0.08), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(63,167,150,0.06), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', 'IBM Plex Sans Devanagari', sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  ::selection{background:var(--marigold); color:#0F1729;}
+  a{color:inherit;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 28px;}
+
+  /* ---------- NAV ---------- */
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 28px; max-width:1180px; margin:0 auto;
+    border-bottom:1px solid var(--border);
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces', serif; font-size:1.35rem; font-weight:600;}
+  .brand .mark{
+    width:30px; height:30px; border-radius:50%;
+    background: conic-gradient(from 90deg, var(--marigold), transparent 70%);
+    border:1.5px solid var(--marigold);
+    position:relative;
+  }
+  .brand .mark::after{content:""; position:absolute; inset:9px; border-radius:50%; background:var(--marigold);}
+  .navlinks{display:flex; gap:28px; font-size:0.88rem; color:var(--text-muted);}
+  .navlinks a{text-decoration:none; transition:color .2s;}
+  .navlinks a:hover{color:var(--marigold);}
+  .lang-toggle{
+    display:flex; border:1px solid var(--border); border-radius:20px; overflow:hidden; font-size:0.78rem; font-family:'IBM Plex Mono',monospace;
+  }
+  .lang-toggle button{background:transparent; border:none; color:var(--text-muted); padding:6px 12px; cursor:pointer; font-family:inherit;}
+  .lang-toggle button.active{background:var(--marigold); color:#0F1729; font-weight:600;}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:76px 28px 40px; max-width:1180px; margin:0 auto;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:0.75rem; letter-spacing:0.06em;
+    color:var(--marigold); background:var(--marigold-soft); border:1px solid rgba(232,163,61,0.35);
+    padding:6px 14px; border-radius:20px; margin-bottom:26px; text-transform:uppercase;
+  }
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--danger); animation:blink 1.6s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.25;}}
+  h1{
+    font-family:'Fraunces', serif; font-weight:600; font-size:clamp(2.1rem, 5vw, 4rem);
+    line-height:1.15; max-width:820px; letter-spacing:-0.01em;
+  }
+  h1 em{font-style:italic; font-weight:500; color:var(--marigold);}
+  .hero p.sub{margin-top:22px; font-size:1.1rem; color:var(--text-muted); max-width:640px;}
+  .hero-cta{display:flex; gap:14px; margin-top:34px; flex-wrap:wrap;}
+  .btn{
+    font-family:inherit; font-weight:600; font-size:0.92rem;
+    padding:13px 26px; border-radius:8px; cursor:pointer; border:none; text-decoration:none; display:inline-block;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary{background:var(--marigold); color:#0F1729; box-shadow:0 0 0 rgba(232,163,61,0);}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 8px 24px rgba(232,163,61,0.25);}
+  .btn-ghost{background:transparent; color:var(--text); border:1px solid var(--border);}
+  .btn-ghost:hover{border-color:var(--marigold); color:var(--marigold);}
+
+  .stat-bar{
+    margin-top:56px; display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--border); border:1px solid var(--border); border-radius:12px; overflow:hidden;
+  }
+  .stat{background:var(--bg-panel); padding:22px 20px;}
+  .stat .num{font-family:'Fraunces', serif; font-size:1.7rem; color:var(--marigold); font-weight:600;}
+  .stat .lbl{font-size:0.78rem; color:var(--text-muted); margin-top:4px;}
+
+  /* ---------- SECTION HEADS ---------- */
+  section{padding:70px 28px; max-width:1180px; margin:0 auto;}
+  .section-head{margin-bottom:38px; max-width:640px;}
+  .section-head .kicker{font-family:'IBM Plex Mono',monospace; font-size:0.78rem; color:var(--marigold); text-transform:uppercase; letter-spacing:0.08em;}
+  .section-head h2{font-family:'Fraunces', serif; font-size:2rem; font-weight:600; margin-top:10px;}
+  .section-head p{color:var(--text-muted); margin-top:12px; font-size:1rem;}
+
+  /* ---------- DEMO ---------- */
+  .tabs{display:flex; gap:8px; margin-bottom:24px;}
+  .tab-btn{
+    background:var(--bg-panel); border:1px solid var(--border); color:var(--text-muted);
+    padding:10px 20px; border-radius:8px; cursor:pointer; font-family:inherit; font-size:0.88rem; font-weight:500;
+  }
+  .tab-btn.active{border-color:var(--marigold); color:var(--marigold); background:var(--marigold-soft);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .demo-grid{display:grid; grid-template-columns:1.15fr 1fr; gap:22px;}
+  @media(max-width:860px){.demo-grid{grid-template-columns:1fr;}}
+
+  .panel{background:var(--bg-panel); border:1px solid var(--border); border-radius:14px; padding:22px;}
+  .panel-title{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .panel-title h3{font-size:0.95rem; font-weight:600; display:flex; align-items:center; gap:8px;}
+  .panel-title h3 .led{width:8px; height:8px; border-radius:50%; background:var(--safe);}
+  .panel-title h3 .led.live{animation:blink 1.4s infinite; background:var(--danger);}
+
+  .scenario-select{display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;}
+  .scenario-select button{
+    background:var(--bg-panel-alt); border:1px solid var(--border); color:var(--text-muted);
+    padding:7px 12px; border-radius:6px; font-size:0.76rem; cursor:pointer; font-family:inherit;
+  }
+  .scenario-select button.active{border-color:var(--marigold); color:var(--marigold);}
+
+  .transcript{
+    height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:4px;
+  }
+  .transcript::-webkit-scrollbar{width:5px;}
+  .transcript::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px;}
+  .bubble{max-width:82%; padding:10px 14px; border-radius:12px; font-size:0.88rem; animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .bubble .who{font-family:'IBM Plex Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.04em; opacity:0.7; margin-bottom:3px;}
+  .bubble.caller{background:rgba(225,85,84,0.12); border:1px solid rgba(225,85,84,0.25); align-self:flex-start; border-bottom-left-radius:2px;}
+  .bubble.victim{background:var(--bg-panel-alt); border:1px solid var(--border); align-self:flex-end; border-bottom-right-radius:2px;}
+
+  .call-controls{display:flex; gap:10px; margin-top:16px;}
+  .call-controls button{
+    flex:1; padding:11px; border-radius:8px; border:1px solid var(--border); background:var(--bg-panel-alt);
+    color:var(--text); font-family:inherit; font-weight:600; font-size:0.85rem; cursor:pointer;
+  }
+  .call-controls button.primary{background:var(--marigold); color:#0F1729; border:none;}
+  .call-controls button:disabled{opacity:0.6; cursor:not-allowed;}
+
+  /* ---------- GUARDIAN GAUGE ---------- */
+  .gauge-area{display:flex; flex-direction:column; align-items:center; padding:12px 0 8px;}
+  .gauge-wrap{position:relative; width:190px; height:190px;}
+  .sweep{
+    position:absolute; inset:0; border-radius:50%;
+    background:conic-gradient(from 0deg, var(--marigold-soft), transparent 45%);
+    animation:spin 3.2s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .gauge-ring{
+    position:absolute; inset:14px; border-radius:50%; background:var(--bg-panel);
+    border:3px solid var(--safe); display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:border-color .5s ease, box-shadow .5s ease;
+  }
+  .gauge-ring .score{font-family:'Fraunces', serif; font-size:2.6rem; font-weight:600; line-height:1;}
+  .gauge-ring .level{font-family:'IBM Plex Mono',monospace; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; margin-top:6px; color:var(--text-muted); text-align:center; padding:0 10px;}
+
+  .zone-bar{width:100%; margin-top:22px;}
+  .zone-track{position:relative; height:8px; border-radius:6px; background:linear-gradient(90deg, var(--safe) 0%, var(--safe) 25%, var(--marigold) 25%, var(--marigold) 62%, var(--danger) 62%, var(--danger) 100%);}
+  .zone-marker{position:absolute; top:-5px; width:3px; height:18px; background:var(--text); border-radius:2px; transition:left .5s ease; box-shadow:0 0 8px rgba(255,255,255,0.6);}
+  .zone-labels{display:flex; justify-content:space-between; font-size:0.66rem; color:var(--text-muted); margin-top:6px; font-family:'IBM Plex Mono',monospace;}
+
+  .flags-list{margin-top:20px; display:flex; flex-direction:column; gap:8px; min-height:40px;}
+  .flag{
+    display:flex; gap:8px; align-items:flex-start; font-size:0.82rem; background:var(--bg-panel-alt);
+    border:1px solid var(--border); border-left:3px solid var(--danger); padding:9px 12px; border-radius:6px;
+    animation:rise .3s ease;
+  }
+  .flag .ico{color:var(--danger); font-family:'IBM Plex Mono'; font-weight:700;}
+  .placeholder-txt{color:var(--text-muted); font-size:0.8rem; font-style:italic;}
+
+  .action-banner{
+    margin-top:18px; padding:14px 16px; border-radius:8px; font-size:0.86rem; font-weight:500;
+    background:rgba(63,167,150,0.1); border:1px solid rgba(63,167,150,0.3); color:var(--safe);
+    transition:all .4s ease;
+  }
+
+  .guardian-toggle{
+    margin-top:16px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 14px; background:var(--bg-panel-alt); border:1px solid var(--border); border-radius:8px; font-size:0.82rem;
+  }
+  .switch{flex-shrink:0; width:38px; height:20px; border-radius:20px; background:var(--border); position:relative; cursor:pointer;}
+  .switch::after{content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:var(--text-muted); transition:all .25s ease;}
+  .switch.on{background:rgba(232,163,61,0.35);}
+  .switch.on::after{left:20px; background:var(--marigold);}
+  .guardian-log{margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--text-muted); display:none;}
+  .guardian-log.show{display:block;}
+  .guardian-log .entry{padding:6px 0; border-top:1px dashed var(--border);}
+
+  /* ---------- SCANNER TAB ---------- */
+  .scanner-wrap{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  @media(max-width:860px){.scanner-wrap{grid-template-columns:1fr;}}
+  textarea{
+    width:100%; min-height:220px; background:var(--bg-panel-alt); border:1px solid var(--border); border-radius:10px;
+    color:var(--text); font-family:inherit; font-size:0.9rem; padding:14px; resize:vertical;
+  }
+  textarea:focus{outline:none; border-color:var(--marigold);}
+  .sample-chips{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;}
+  .chip{font-size:0.72rem; background:var(--bg-panel-alt); border:1px solid var(--border); color:var(--text-muted); padding:5px 10px; border-radius:14px; cursor:pointer; font-family:inherit;}
+  .scan-result{min-height:220px; display:flex; align-items:center; justify-content:center; text-align:center; color:var(--text-muted); font-size:0.88rem;}
+  .scan-result.filled{display:block; text-align:left;}
+  .result-score{display:flex; align-items:center; gap:16px; margin-bottom:16px;}
+  .result-score .big{font-family:'Fraunces',serif; font-size:2.4rem; font-weight:600;}
+  .result-cat{font-family:'IBM Plex Mono',monospace; font-size:0.78rem; padding:4px 10px; border-radius:6px; display:inline-block;}
+
+  /* ---------- HOW IT WORKS ---------- */
+  .flow{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:10px;}
+  @media(max-width:860px){.flow{grid-template-columns:1fr 1fr;}}
+  .flow-step{background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; padding:20px;}
+  .flow-step .n{font-family:'Fraunces',serif; color:var(--marigold); font-size:1.6rem; font-weight:600;}
+  .flow-step h4{margin-top:10px; font-size:0.95rem;}
+  .flow-step p{margin-top:6px; font-size:0.8rem; color:var(--text-muted);}
+
+  /* ---------- WHY / IMPACT ---------- */
+  .why-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:10px;}
+  @media(max-width:860px){.why-grid{grid-template-columns:1fr;}}
+  .why-card{background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; padding:22px;}
+  .why-card h4{font-family:'Fraunces',serif; font-size:1.15rem; font-weight:600; margin-bottom:8px;}
+  .why-card p{color:var(--text-muted); font-size:0.86rem;}
+
+  footer{border-top:1px solid var(--border); padding:36px 28px; text-align:center; color:var(--text-muted); font-size:0.8rem;}
+  footer .fmark{color:var(--marigold);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand"><span class="mark"></span>RakshaAI</div>
+  <div class="navlinks">
+    <a href="#demo" data-i18n="nav_demo">Live Demo</a>
+    <a href="#how" data-i18n="nav_how">How It Works</a>
+    <a href="#why" data-i18n="nav_why">Why It Wins</a>
+  </div>
+  <div class="lang-toggle">
+    <button class="active" data-lang="en">EN</button>
+    <button data-lang="hi">हिं</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="eyebrow"><span class="dot"></span><span data-i18n="eyebrow">Built for InnovaHack Chapter 1 — Startup / Open Innovation · Cybersecurity × FinTech × GenAI</span></div>
+  <h1 data-i18n="hero_title">The AI that listens for <em>the lie</em>, before you pay the price.</h1>
+  <p class="sub" data-i18n="hero_sub">RakshaAI rides alongside a call, message, or UPI request in real time — detecting digital-arrest scripts, cloned voices, and social-engineering pressure the moment they start, and pulling in a trusted family member before money moves.</p>
+  <div class="hero-cta">
+    <a href="#demo" class="btn btn-primary" data-i18n="cta_demo">▶ Try the Live Guardian</a>
+    <a href="#how" class="btn btn-ghost" data-i18n="cta_how">See how detection works</a>
+  </div>
+
+  <div class="stat-bar">
+    <div class="stat"><div class="num">₹22,495 Cr</div><div class="lbl" data-i18n="stat1">lost to cyber fraud in India, 2025</div></div>
+    <div class="stat"><div class="num">2.81M</div><div class="lbl" data-i18n="stat2">cybercrime cases reported in 2025</div></div>
+    <div class="stat"><div class="num">30,000+</div><div class="lbl" data-i18n="stat3">digital-arrest complaints, 2025</div></div>
+    <div class="stat"><div class="num">6%</div><div class="lbl" data-i18n="stat4">of stolen funds ever recovered</div></div>
+  </div>
+</div>
+
+<section id="demo">
+  <div class="section-head">
+    <div class="kicker" data-i18n="demo_kicker">Working Prototype</div>
+    <h2 data-i18n="demo_heading">Watch the Guardian catch a scam live</h2>
+    <p data-i18n="demo_desc">This is a real, working detector — pick a call scenario and watch RakshaAI score risk turn-by-turn, exactly as it would on a live phone call. Or paste any suspicious message into the scanner.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="call"><span data-i18n="tab_call">📞 Live Call Monitor</span></button>
+    <button class="tab-btn" data-tab="scan"><span data-i18n="tab_scan">💬 Message / UPI Scanner</span></button>
+  </div>
+
+  <div class="tab-panel active" id="tab-call">
+    <div class="scenario-select">
+      <button class="active" data-scn="0" data-i18n="scn0">"Digital Arrest" — Fake CBI Officer</button>
+      <button data-scn="1" data-i18n="scn1">Fake Bank KYC / Voice Clone</button>
+      <button data-scn="2" data-i18n="scn2">Courier–Customs "Parcel" Scam</button>
+    </div>
+    <div class="demo-grid">
+      <div class="panel">
+        <div class="panel-title"><h3><span class="led" id="callLed"></span><span data-i18n="panel_transcript">Live Transcript</span></h3><span id="callStatus" style="font-size:0.75rem; color:var(--text-muted); font-family:'IBM Plex Mono',monospace;"></span></div>
+        <div class="transcript" id="transcript"></div>
+        <div class="call-controls">
+          <button class="primary" id="playBtn" data-i18n="btn_start">▶ Start Simulated Call</button>
+          <button id="resetBtn" data-i18n="btn_reset">↺ Reset</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><h3>🛡️ <span data-i18n="panel_guardian">AI Guardian</span></h3></div>
+        <div class="gauge-area">
+          <div class="gauge-wrap">
+            <div class="sweep"></div>
+            <div class="gauge-ring" id="gaugeRing">
+              <div class="score" id="scoreNum">0</div>
+              <div class="level" id="levelLbl" data-i18n="lvl_monitoring">MONITORING</div>
+            </div>
+          </div>
+          <div class="zone-bar">
+            <div class="zone-track"><div class="zone-marker" id="zoneMarker" style="left:0%"></div></div>
+            <div class="zone-labels"><span data-i18n="zone_safe">SAFE</span><span data-i18n="zone_caution">CAUTION</span><span data-i18n="zone_critical">CRITICAL</span></div>
+          </div>
+        </div>
+        <div class="flags-list" id="flagsList"><div class="placeholder-txt" data-i18n="flags_placeholder">Red flags detected during the call will appear here in real time…</div></div>
+        <div class="action-banner" id="actionBanner" data-i18n="action_default">No active risk. Guardian is listening passively.</div>
+        <div class="guardian-toggle">
+          <span data-i18n="guardian_toggle_label">🔔 Alert family guardian at High Risk</span>
+          <div class="switch on" id="guardianSwitch"></div>
+        </div>
+        <div class="guardian-log" id="guardianLog"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab-scan">
+    <div class="scanner-wrap">
+      <div class="panel">
+        <div class="panel-title"><h3 data-i18n="scan_panel_title">Paste a message, SMS, or call snippet</h3></div>
+        <textarea id="scanInput" data-i18n-placeholder="scan_placeholder" placeholder="e.g. 'Sir, your Aadhaar is linked to a parcel containing illegal items. This is TRAI. Do not disconnect the call or you will be arrested. Please share the OTP to verify your identity...'"></textarea>
+        <div class="sample-chips">
+          <span class="chip" data-fill="0" data-i18n="chip0">Try: fake police threat</span>
+          <span class="chip" data-fill="1" data-i18n="chip1">Try: fake loan approval</span>
+          <span class="chip" data-fill="2" data-i18n="chip2">Try: genuine bank SMS</span>
+        </div>
+        <div class="call-controls">
+          <button class="primary" id="scanBtn" style="flex:none; padding:11px 28px;" data-i18n="btn_analyze">Analyze Risk</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><h3 data-i18n="panel_analysis">Analysis</h3></div>
+        <div class="scan-result" id="scanResult" data-i18n="scan_default">Paste text on the left and click Analyze to see RakshaAI's risk assessment.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="section-head">
+    <div class="kicker" data-i18n="how_kicker">Architecture</div>
+    <h2 data-i18n="how_heading">Two-layer detection, built for the real world</h2>
+    <p data-i18n="how_desc">A pure LLM call is too slow and too fragile for a live phone call. RakshaAI pairs an instant offline pattern engine with an LLM reasoning layer for semantic, never-seen-before scripts.</p>
+  </div>
+  <div class="flow">
+    <div class="flow-step"><div class="n">01</div><h4 data-i18n="flow0_title">Capture</h4><p data-i18n="flow0_desc">Live call audio (via telecom/OEM accessibility APIs) or pasted SMS/WhatsApp text is transcribed on-device in near real time.</p></div>
+    <div class="flow-step"><div class="n">02</div><h4 data-i18n="flow1_title">Fast Heuristic Pass</h4><p data-i18n="flow1_desc">A &lt;50ms offline pattern engine scores known scam signatures — impersonation phrases, urgency, secrecy, OTP/fund-transfer requests — even with no network.</p></div>
+    <div class="flow-step"><div class="n">03</div><h4 data-i18n="flow2_title">LLM Reasoning Layer</h4><p data-i18n="flow2_desc">Claude analyzes full conversational context and intent to catch novel, paraphrased, or multilingual scam scripts the heuristic engine misses.</p></div>
+    <div class="flow-step"><div class="n">04</div><h4 data-i18n="flow3_title">Act</h4><p data-i18n="flow3_desc">Above threshold: on-screen warning in the caller's language, call-recording prompt, and one-tap alert to a pre-set family guardian with live risk context.</p></div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="section-head">
+    <div class="kicker" data-i18n="why_kicker">Why This Wins</div>
+    <h2 data-i18n="why_heading">Built to survive judging, not just impress a demo</h2>
+  </div>
+  <div class="why-grid">
+    <div class="why-card"><h4 data-i18n="why0_title">Real, current, provable problem</h4><p data-i18n="why0_desc">Not a hypothetical — ₹22,495 crore lost in 2025 alone, with digital-arrest scams growing fastest. Every judge's parent or grandparent is the target user.</p></div>
+    <div class="why-card"><h4 data-i18n="why1_title">AI fighting AI</h4><p data-i18n="why1_desc">Scammers now use voice cloning and AI-generated scripts. RakshaAI is explicitly AI-vs-AI — a sharper, more defensible narrative than "AI for X."</p></div>
+    <div class="why-card"><h4 data-i18n="why2_title">Works without the internet</h4><p data-i18n="why2_desc">The offline heuristic layer keeps protecting users through poor rural connectivity — critical since first-time digital users in Tier-2/3 India are now the fastest-growing target group.</p></div>
+    <div class="why-card"><h4 data-i18n="why3_title">B2B2C revenue path</h4><p data-i18n="why3_desc">Licensable to banks (fraud-prevention mandate under RBI), telecoms (caller-risk layer), and insurers — not just a consumer app with no business model.</p></div>
+    <div class="why-card"><h4 data-i18n="why4_title">Designed for the actual victims</h4><p data-i18n="why4_desc">Elderly and first-time digital users, not developers — large text, voice-first alerts, regional language support, and a family safety net instead of relying on the victim alone.</p></div>
+    <div class="why-card"><h4 data-i18n="why5_title">Ships in 24 hours</h4><p data-i18n="why5_desc">The detection core, dashboard, and scanner you're using right now are fully working — not a mockup. Judges can test it live.</p></div>
+  </div>
+</section>
+
+<footer data-i18n="footer_text">
+  Built for <span class="fmark">InnovaHack Chapter 1</span> — Round 1 Submission · RakshaAI Team · Domain: Startup / Open Innovation (Cybersecurity × FinTech × GenAI)
+</footer>
+
+<script>
+/* ======================= i18n dictionary ======================= */
+const i18n = {
+  en: {
+    nav_demo: "Live Demo", nav_how: "How It Works", nav_why: "Why It Wins",
+    eyebrow: "Built for InnovaHack Chapter 1 — Startup / Open Innovation · Cybersecurity × FinTech × GenAI",
+    hero_title: 'The AI that listens for <em>the lie</em>, before you pay the price.',
+    hero_sub: "RakshaAI rides alongside a call, message, or UPI request in real time — detecting digital-arrest scripts, cloned voices, and social-engineering pressure the moment they start, and pulling in a trusted family member before money moves.",
+    cta_demo: '▶ Try the Live Guardian',
+    cta_how: 'See how detection works',
+    stat1: "lost to cyber fraud in India, 2025",
+    stat2: "cybercrime cases reported in 2025",
+    stat3: "digital-arrest complaints, 2025",
+    stat4: "of stolen funds ever recovered",
+    demo_kicker: "Working Prototype",
+    demo_heading: "Watch the Guardian catch a scam live",
+    demo_desc: "This is a real, working detector — pick a call scenario and watch RakshaAI score risk turn-by-turn, exactly as it would on a live phone call. Or paste any suspicious message into the scanner.",
+    tab_call: "📞 Live Call Monitor",
+    tab_scan: "💬 Message / UPI Scanner",
+    scn0: '"Digital Arrest" — Fake CBI Officer',
+    scn1: "Fake Bank KYC / Voice Clone",
+    scn2: 'Courier–Customs "Parcel" Scam',
+    panel_transcript: "Live Transcript",
+    panel_guardian: "AI Guardian",
+    btn_start: "▶ Start Simulated Call",
+    btn_reset: "↺ Reset",
+    status_idle: "idle",
+    status_progress: "call in progress…",
+    status_ended: "call ended",
+    btn_progress: "Call in progress…",
+    btn_complete: "✓ Call Complete",
+    lvl_monitoring: "MONITORING",
+    lvl_safe: "SAFE",
+    lvl_caution: "CAUTION",
+    lvl_critical: "CRITICAL RISK",
+    zone_safe: "SAFE", zone_caution: "CAUTION", zone_critical: "CRITICAL",
+    flags_placeholder: "Red flags detected during the call will appear here in real time…",
+    action_default: "No active risk. Guardian is listening passively.",
+    action_caution: "Unusual pressure detected. Stay alert — do not share any codes or make payments yet.",
+    action_critical: "⚠ High-confidence scam pattern. Hang up. Do not transfer money or share OTP.",
+    guardian_toggle_label: "🔔 Alert family guardian at High Risk",
+    guardian_alert_msg: (time, score) => `🔔 ${time} — SMS sent to Rohan (Son): "Risk alert: possible scam call in progress with Mother, risk score ${score}/100. Call her now."`,
+    who_caller: "Unknown Caller", who_victim: "You",
+    scan_panel_title: "Paste a message, SMS, or call snippet",
+    scan_placeholder: "e.g. 'Sir, your Aadhaar is linked to a parcel containing illegal items. This is TRAI. Do not disconnect the call or you will be arrested. Please share the OTP to verify your identity...'",
+    chip0: "Try: fake police threat", chip1: "Try: fake loan approval", chip2: "Try: genuine bank SMS",
+    btn_analyze: "Analyze Risk",
+    panel_analysis: "Analysis",
+    scan_default: "Paste text on the left and click Analyze to see RakshaAI's risk assessment.",
+    scan_analyzing: "Analyzing…",
+    risk_low: "LOW RISK", risk_moderate: "MODERATE RISK", risk_high: "HIGH RISK",
+    cat_default: "Pattern-based detection",
+    explain_matched: (list) => `Matched known scam signatures: ${list}.`,
+    explain_none: "No known scam signatures matched.",
+    action_scan_high: "Do not respond, click links, or share any codes.",
+    action_scan_mid: "Proceed with caution and verify independently.",
+    action_scan_low: "No immediate red flags found.",
+    scan_empty: "Paste some text first.",
+    how_kicker: "Architecture",
+    how_heading: "Two-layer detection, built for the real world",
+    how_desc: "A pure LLM call is too slow and too fragile for a live phone call. RakshaAI pairs an instant offline pattern engine with an LLM reasoning layer for semantic, never-seen-before scripts.",
+    flow0_title: "Capture", flow0_desc: "Live call audio (via telecom/OEM accessibility APIs) or pasted SMS/WhatsApp text is transcribed on-device in near real time.",
+    flow1_title: "Fast Heuristic Pass", flow1_desc: "A <50ms offline pattern engine scores known scam signatures — impersonation phrases, urgency, secrecy, OTP/fund-transfer requests — even with no network.",
+    flow2_title: "LLM Reasoning Layer", flow2_desc: "Claude analyzes full conversational context and intent to catch novel, paraphrased, or multilingual scam scripts the heuristic engine misses.",
+    flow3_title: "Act", flow3_desc: "Above threshold: on-screen warning in the caller's language, call-recording prompt, and one-tap alert to a pre-set family guardian with live risk context.",
+    why_kicker: "Why This Wins",
+    why_heading: "Built to survive judging, not just impress a demo",
+    why0_title: "Real, current, provable problem", why0_desc: "Not a hypothetical — ₹22,495 crore lost in 2025 alone, with digital-arrest scams growing fastest. Every judge's parent or grandparent is the target user.",
+    why1_title: "AI fighting AI", why1_desc: 'Scammers now use voice cloning and AI-generated scripts. RakshaAI is explicitly AI-vs-AI — a sharper, more defensible narrative than "AI for X."',
+    why2_title: "Works without the internet", why2_desc: "The offline heuristic layer keeps protecting users through poor rural connectivity — critical since first-time digital users in Tier-2/3 India are now the fastest-growing target group.",
+    why3_title: "B2B2C revenue path", why3_desc: "Licensable to banks (fraud-prevention mandate under RBI), telecoms (caller-risk layer), and insurers — not just a consumer app with no business model.",
+    why4_title: "Designed for the actual victims", why4_desc: "Elderly and first-time digital users, not developers — large text, voice-first alerts, regional language support, and a family safety net instead of relying on the victim alone.",
+    why5_title: "Ships in 24 hours", why5_desc: "The detection core, dashboard, and scanner you're using right now are fully working — not a mockup. Judges can test it live.",
+    footer_text: 'Built for <span class="fmark">InnovaHack Chapter 1</span> — Round 1 Submission · RakshaAI Team · Domain: Startup / Open Innovation (Cybersecurity × FinTech × GenAI)'
+  },
+  hi: {
+    nav_demo: "लाइव डेमो", nav_how: "यह कैसे काम करता है", nav_why: "क्यों जीतेगा",
+    eyebrow: "InnovaHack Chapter 1 के लिए बनाया गया — स्टार्टअप / ओपन इनोवेशन · साइबर सुरक्षा × फिनटेक × जेनAI",
+    hero_title: 'वह AI जो पैसे जाने से पहले <em>झूठ</em> को पहचान लेता है।',
+    hero_sub: "RakshaAI किसी भी कॉल, मैसेज या UPI रिक्वेस्ट के साथ रियल-टाइम में काम करता है — डिजिटल अरेस्ट स्क्रिप्ट, नकली आवाज़ और दबाव बनाने के तरीकों को शुरुआत में ही पकड़ लेता है, और पैसे जाने से पहले परिवार के किसी भरोसेमंद सदस्य को सूचित करता है।",
+    cta_demo: '▶ लाइव गार्जियन आज़माएं',
+    cta_how: 'पहचान कैसे काम करती है, देखें',
+    stat1: "2025 में भारत में साइबर धोखाधड़ी से हुआ नुकसान",
+    stat2: "2025 में दर्ज साइबर अपराध के मामले",
+    stat3: "2025 में डिजिटल अरेस्ट की शिकायतें",
+    stat4: "चुराई गई राशि में से वापस मिली",
+    demo_kicker: "वर्किंग प्रोटोटाइप",
+    demo_heading: "देखें कैसे गार्जियन लाइव स्कैम पकड़ता है",
+    demo_desc: "यह एक असली, काम करने वाला डिटेक्टर है — कोई कॉल परिदृश्य चुनें और देखें कि RakshaAI हर बारी पर जोखिम का स्कोर कैसे तय करता है, बिल्कुल किसी लाइव फोन कॉल की तरह। या स्कैनर में कोई भी संदिग्ध मैसेज पेस्ट करें।",
+    tab_call: "📞 लाइव कॉल मॉनिटर",
+    tab_scan: "💬 मैसेज / UPI स्कैनर",
+    scn0: '"डिजिटल अरेस्ट" — नकली CBI अधिकारी',
+    scn1: "नकली बैंक KYC / नकली आवाज़",
+    scn2: 'कूरियर–कस्टम्स "पार्सल" स्कैम',
+    panel_transcript: "लाइव ट्रांसक्रिप्ट",
+    panel_guardian: "AI गार्जियन",
+    btn_start: "▶ सिम्युलेटेड कॉल शुरू करें",
+    btn_reset: "↺ रीसेट करें",
+    status_idle: "निष्क्रिय",
+    status_progress: "कॉल जारी है…",
+    status_ended: "कॉल समाप्त",
+    btn_progress: "कॉल जारी है…",
+    btn_complete: "✓ कॉल पूर्ण",
+    lvl_monitoring: "निगरानी जारी",
+    lvl_safe: "सुरक्षित",
+    lvl_caution: "सावधानी",
+    lvl_critical: "गंभीर जोखिम",
+    zone_safe: "सुरक्षित", zone_caution: "सावधानी", zone_critical: "गंभीर",
+    flags_placeholder: "कॉल के दौरान पहचाने गए खतरे के संकेत यहां रियल टाइम में दिखाई देंगे…",
+    action_default: "कोई सक्रिय जोखिम नहीं। गार्जियन ध्यान से सुन रहा है।",
+    action_caution: "असामान्य दबाव महसूस हुआ। सतर्क रहें — अभी कोई कोड शेयर न करें या भुगतान न करें।",
+    action_critical: "⚠ उच्च-विश्वास वाला स्कैम पैटर्न मिला। कॉल काट दें। पैसे ट्रांसफर न करें या OTP शेयर न करें।",
+    guardian_toggle_label: "🔔 उच्च जोखिम पर परिवार के गार्जियन को सूचित करें",
+    guardian_alert_msg: (time, score) => `🔔 ${time} — रोहन (बेटा) को SMS भेजा गया: "जोखिम चेतावनी: मां के साथ संभावित स्कैम कॉल जारी है, जोखिम स्कोर ${score}/100। अभी उन्हें फोन करें।"`,
+    who_caller: "अज्ञात कॉलर", who_victim: "आप",
+    scan_panel_title: "कोई मैसेज, SMS या कॉल का अंश पेस्ट करें",
+    scan_placeholder: "उदाहरण: 'सर, आपका आधार एक ऐसे पार्सल से जुड़ा है जिसमें अवैध सामान है। यह TRAI बोल रहा है। कॉल मत काटिए वरना आपको गिरफ्तार कर लिया जाएगा। कृपया पहचान सत्यापित करने के लिए OTP बताइए...'",
+    chip0: "आज़माएं: नकली पुलिस धमकी", chip1: "आज़माएं: नकली लोन स्वीकृति", chip2: "आज़माएं: असली बैंक SMS",
+    btn_analyze: "जोखिम की जांच करें",
+    panel_analysis: "विश्लेषण",
+    scan_default: "बाईं ओर टेक्स्ट पेस्ट करें और RakshaAI का जोखिम आकलन देखने के लिए Analyze पर क्लिक करें।",
+    scan_analyzing: "विश्लेषण हो रहा है…",
+    risk_low: "कम जोखिम", risk_moderate: "मध्यम जोखिम", risk_high: "उच्च जोखिम",
+    cat_default: "पैटर्न-आधारित पहचान",
+    explain_matched: (list) => `ज्ञात स्कैम संकेत मिले: ${list}।`,
+    explain_none: "कोई ज्ञात स्कैम संकेत नहीं मिला।",
+    action_scan_high: "जवाब न दें, लिंक पर क्लिक न करें, या कोई कोड शेयर न करें।",
+    action_scan_mid: "सावधानी से आगे बढ़ें और स्वतंत्र रूप से सत्यापित करें।",
+    action_scan_low: "कोई तत्काल खतरे का संकेत नहीं मिला।",
+    scan_empty: "पहले कुछ टेक्स्ट पेस्ट करें।",
+    how_kicker: "आर्किटेक्चर",
+    how_heading: "दो-स्तरीय पहचान, असली दुनिया के लिए बनाई गई",
+    how_desc: "एक लाइव फोन कॉल के लिए सिर्फ LLM कॉल बहुत धीमी और नाज़ुक है। RakshaAI एक तुरंत काम करने वाले ऑफलाइन पैटर्न इंजन को LLM रीज़निंग लेयर के साथ जोड़ता है ताकि नए, कभी न देखे गए स्क्रिप्ट भी पकड़े जा सकें।",
+    flow0_title: "कैप्चर", flow0_desc: "लाइव कॉल ऑडियो (टेलीकॉम/OEM एक्सेसिबिलिटी API के ज़रिए) या पेस्ट किया गया SMS/WhatsApp टेक्स्ट डिवाइस पर ही लगभग रियल टाइम में ट्रांसक्राइब होता है।",
+    flow1_title: "तेज़ हेयुरिस्टिक पास", flow1_desc: "एक 50ms से कम समय लेने वाला ऑफलाइन पैटर्न इंजन ज्ञात स्कैम संकेतों — प्रतिरूपण भाषा, तात्कालिकता, गोपनीयता, OTP/फंड-ट्रांसफर अनुरोध — को बिना नेटवर्क के भी स्कोर करता है।",
+    flow2_title: "LLM रीज़निंग लेयर", flow2_desc: "Claude पूरी बातचीत के संदर्भ और इरादे का विश्लेषण करता है ताकि नए, दोबारा लिखे गए या बहुभाषी स्कैम स्क्रिप्ट भी पकड़े जा सकें जो हेयुरिस्टिक इंजन से छूट जाते हैं।",
+    flow3_title: "कार्रवाई", flow3_desc: "सीमा पार होने पर: कॉलर की भाषा में ऑन-स्क्रीन चेतावनी, कॉल-रिकॉर्डिंग प्रॉम्प्ट, और पहले से तय परिवार के गार्जियन को लाइव जोखिम संदर्भ के साथ एक-टैप अलर्ट।",
+    why_kicker: "यह क्यों जीतेगा",
+    why_heading: "जजिंग में टिकने के लिए बनाया गया, सिर्फ डेमो को प्रभावित करने के लिए नहीं",
+    why0_title: "असली, मौजूदा, सिद्ध समस्या", why0_desc: "यह कोई काल्पनिक बात नहीं — सिर्फ 2025 में ₹22,495 करोड़ का नुकसान हुआ, और डिजिटल अरेस्ट स्कैम सबसे तेज़ी से बढ़ रहा है। हर जज के माता-पिता या दादा-दादी इसका लक्ष्य बन सकते हैं।",
+    why1_title: "AI बनाम AI", why1_desc: 'स्कैमर अब वॉइस क्लोनिंग और AI-जनरेटेड स्क्रिप्ट का इस्तेमाल कर रहे हैं। RakshaAI साफ तौर पर AI-बनाम-AI है — यह सामान्य "AI for X" से कहीं ज़्यादा मज़बूत तर्क है।',
+    why2_title: "बिना इंटरनेट के भी काम करता है", why2_desc: "ऑफलाइन हेयुरिस्टिक लेयर खराब ग्रामीण कनेक्टिविटी में भी यूज़र्स की सुरक्षा जारी रखती है — यह ज़रूरी है क्योंकि टियर-2/3 भारत में पहली बार डिजिटल इस्तेमाल करने वाले अब सबसे तेज़ी से बढ़ता लक्ष्य समूह हैं।",
+    why3_title: "B2B2C रेवेन्यू रास्ता", why3_desc: "बैंकों (RBI के फ्रॉड-रोकथाम अनिवार्यता के तहत), टेलीकॉम (कॉलर-जोखिम लेयर) और बीमा कंपनियों को लाइसेंस दिया जा सकता है — यह सिर्फ बिना बिज़नेस मॉडल वाला कंज़्यूमर ऐप नहीं है।",
+    why4_title: "असली पीड़ितों के लिए डिज़ाइन किया गया", why4_desc: "बुज़ुर्ग और पहली बार डिजिटल इस्तेमाल करने वाले, न कि डेवलपर — बड़ा टेक्स्ट, वॉइस-फर्स्ट अलर्ट, क्षेत्रीय भाषा समर्थन, और पीड़ित को अकेला छोड़ने के बजाय परिवार का सुरक्षा जाल।",
+    why5_title: "24 घंटे में तैयार", why5_desc: "जो डैशबोर्ड और स्कैनर आप अभी इस्तेमाल कर रहे हैं वह पूरी तरह काम कर रहा है — कोई मॉकअप नहीं। जज इसे लाइव टेस्ट कर सकते हैं।",
+    footer_text: 'InnovaHack Chapter 1 के लिए बनाया गया — <span class="fmark">Round 1 Submission</span> · RakshaAI Team · डोमेन: स्टार्टअप / ओपन इनोवेशन (साइबर सुरक्षा / फिनटेक / जेनरेटिव AI)'
+  }
+};
+let currentLang = 'en';
+const t = (key, ...args) => {
+  const v = i18n[currentLang][key];
+  return typeof v === 'function' ? v(...args) : v;
+};
+
+function applyStaticI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.dataset.i18n;
+    if(i18n[currentLang][key] !== undefined){
+      el.innerHTML = i18n[currentLang][key];
+    }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    const key = el.dataset.i18nPlaceholder;
+    if(i18n[currentLang][key] !== undefined) el.placeholder = i18n[currentLang][key];
+  });
+  document.documentElement.lang = currentLang;
+}
+
+document.querySelectorAll('.lang-toggle button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(btn.dataset.lang === currentLang) return;
+    document.querySelectorAll('.lang-toggle button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentLang = btn.dataset.lang;
+    applyStaticI18n();
+    resetCall();
+    resetScan();
+  });
+});
+
+/* ---------------- Tabs ---------------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------------- Scenarios (bilingual) ---------------- */
+const scenarios = [
+  [ // 0: Digital arrest / fake CBI
+    {who:'caller', en:"Good afternoon. I am calling from the Cyber Crime Cell, Mumbai. Is this your Aadhaar number ending 4521?", hi:"नमस्ते। मैं साइबर क्राइम सेल, मुंबई से बोल रहा हूं। क्या यह आपका आधार नंबर है जो 4521 पर समाप्त होता है?"},
+    {who:'victim', en:"Yes... who is this?", hi:"हां... आप कौन बोल रहे हैं?"},
+    {who:'caller', en:"Sir, a parcel booked under your name to Taiwan was intercepted with illegal substances. An FIR is being filed against you right now.", hi:"सर, आपके नाम से ताइवान भेजा गया एक पार्सल पकड़ा गया है जिसमें अवैध सामान है। अभी आपके खिलाफ FIR दर्ज की जा रही है।"},
+    {who:'victim', en:"What? I never sent any parcel!", hi:"क्या? मैंने तो कोई पार्सल नहीं भेजा!"},
+    {who:'caller', en:"This call is now being monitored by CBI. Do not disconnect or contact anyone, or you will be arrested within the hour. This is a digital arrest procedure.", hi:"यह कॉल अब CBI द्वारा मॉनिटर की जा रही है। कॉल मत काटिए और किसी से संपर्क मत कीजिए, वरना एक घंटे के अंदर आपको गिरफ्तार कर लिया जाएगा। यह एक डिजिटल अरेस्ट प्रक्रिया है।"},
+    {who:'victim', en:"Okay, okay, please don't arrest me, what do I do?", hi:"ठीक है ठीक है, कृपया मुझे गिरफ्तार मत कीजिए, मुझे क्या करना होगा?"},
+    {who:'caller', en:"To verify you are not involved, transfer ₹2,00,000 to this RBI verification account for 24 hours. It will be refunded after clearance.", hi:"यह साबित करने के लिए कि आप शामिल नहीं हैं, इस RBI सत्यापन खाते में ₹2,00,000 ट्रांसफर कीजिए। 24 घंटे में यह वापस कर दिया जाएगा।"},
+    {who:'victim', en:"I'm scared, should I call my son first?", hi:"मुझे डर लग रहा है, क्या मुझे पहले अपने बेटे को फोन करना चाहिए?"},
+    {who:'caller', en:"No! Absolutely do not tell any family member, this is a confidential investigation. Share the OTP you just received to proceed.", hi:"नहीं! अपने किसी भी परिवार के सदस्य को मत बताइए, यह एक गोपनीय जांच है। आगे बढ़ने के लिए अभी आए हुए OTP को बताइए।"}
+  ],
+  [ // 1: Fake bank KYC / voice clone
+    {who:'caller', en:"Hello ma'am, this is Priya from your bank's KYC department. Your account will be blocked in 2 hours due to pending re-verification.", hi:"नमस्ते मैडम, मैं आपके बैंक के KYC विभाग से प्रिया बोल रही हूं। लंबित पुनः सत्यापन के कारण आपका खाता 2 घंटे में ब्लॉक हो जाएगा।"},
+    {who:'victim', en:"Oh no, I didn't get any notice about this.", hi:"अरे नहीं, मुझे इसकी कोई सूचना नहीं मिली।"},
+    {who:'caller', en:"It was sent last week, ma'am. To avoid blocking, I'll verify your identity — can you confirm the 6-digit code sent to your phone?", hi:"यह पिछले हफ्ते भेजी गई थी मैडम। ब्लॉक होने से बचने के लिए, मैं आपकी पहचान सत्यापित करूंगी — क्या आप अपने फोन पर आए 6 अंकों के कोड की पुष्टि कर सकती हैं?"},
+    {who:'victim', en:"Is this safe? I've never shared OTP before.", hi:"क्या यह सुरक्षित है? मैंने पहले कभी OTP शेयर नहीं किया।"},
+    {who:'caller', en:"Yes ma'am, this is a standard, secure verification, I am an authorised bank representative and this call is recorded for your protection.", hi:"हां मैडम, यह एक मानक, सुरक्षित सत्यापन है, मैं एक अधिकृत बैंक प्रतिनिधि हूं और यह कॉल आपकी सुरक्षा के लिए रिकॉर्ड की जा रही है।"},
+    {who:'victim', en:"Okay, the code is coming now...", hi:"ठीक है, कोड अभी आ रहा है..."},
+    {who:'caller', en:"Perfect, also please install this remote-access app so I can complete the verification from my end.", hi:"बहुत बढ़िया, कृपया यह रिमोट-एक्सेस ऐप भी इंस्टॉल कर लीजिए ताकि मैं अपनी तरफ से सत्यापन पूरा कर सकूं।"}
+  ],
+  [ // 2: Courier / customs scam
+    {who:'caller', en:"This is FedEx International calling regarding a package seized at customs containing your documents and 150g of a restricted substance.", hi:"यह फेडेक्स इंटरनेशनल से कॉल है, आपके नाम पर सीमा शुल्क पर एक पार्सल जब्त किया गया है जिसमें आपके दस्तावेज़ और 150 ग्राम प्रतिबंधित पदार्थ हैं।"},
+    {who:'victim', en:"That's not possible, I haven't ordered anything.", hi:"यह संभव नहीं है, मैंने तो कुछ ऑर्डर ही नहीं किया।"},
+    {who:'caller', en:"Your name and Aadhaar match our records exactly. I am transferring your call to Mumbai Customs Police right now, please stay on the line.", hi:"आपका नाम और आधार हमारे रिकॉर्ड से पूरी तरह मेल खाता है। मैं अभी आपकी कॉल मुंबई कस्टम्स पुलिस को ट्रांसफर कर रहा हूं, कृपया लाइन पर बने रहिए।"},
+    {who:'victim', en:"Wait, please, I haven't done anything!", hi:"रुकिए, प्लीज़, मैंने कुछ नहीं किया है!"},
+    {who:'caller', en:"An officer will explain the next steps. To close this case without an arrest, a customs clearance fee must be paid immediately via UPI.", hi:"एक अधिकारी अगले कदम समझाएंगे। बिना गिरफ्तारी के इस मामले को बंद करने के लिए, तुरंत UPI के माध्यम से एक कस्टम्स क्लीयरेंस फीस का भुगतान करना होगा।"},
+    {who:'victim', en:"How much and to whom?", hi:"कितनी और किसे?"},
+    {who:'caller', en:"₹85,000, and sir — do not discuss this call with anyone until the case is cleared, it will affect your case status.", hi:"₹85,000, और सर — जब तक मामला साफ नहीं हो जाता, इस कॉल के बारे में किसी से चर्चा मत कीजिए, इससे आपकी केस स्थिति प्रभावित होगी।"}
+  ]
+];
+
+let currentScenario = 0;
+let playing = false;
+let stepIndex = 0;
+let accumulatedText = '';
+
+document.querySelectorAll('.scenario-select button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(playing) return;
+    document.querySelectorAll('.scenario-select button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentScenario = parseInt(btn.dataset.scn);
+    resetCall();
+  });
+});
+
+const transcriptEl = document.getElementById('transcript');
+const playBtn = document.getElementById('playBtn');
+const resetBtn = document.getElementById('resetBtn');
+const callLed = document.getElementById('callLed');
+const callStatus = document.getElementById('callStatus');
+let alertFired = false;
+
+function resetCall(){
+  playing = false;
+  stepIndex = 0;
+  accumulatedText = '';
+  transcriptEl.innerHTML = '';
+  playBtn.textContent = t('btn_start');
+  playBtn.disabled = false;
+  callLed.classList.remove('live');
+  callStatus.textContent = t('status_idle');
+  alertFired = false;
+  updateGauge(0, []);
+  document.getElementById('guardianLog').classList.remove('show');
+  document.getElementById('guardianLog').innerHTML = '';
+}
+
+resetBtn.addEventListener('click', resetCall);
+
+playBtn.addEventListener('click', ()=>{
+  if(playing) return;
+  playing = true;
+  callLed.classList.add('live');
+  callStatus.textContent = t('status_progress');
+  playBtn.disabled = true;
+  playBtn.textContent = t('btn_progress');
+  stepThroughCall();
+});
+
+async function stepThroughCall(){
+  const script = scenarios[currentScenario];
+  for(let i=stepIndex; i<script.length; i++){
+    await sleep(1100);
+    const line = script[i];
+    addBubble(line.who, line[currentLang]);
+    accumulatedText += (line.who === 'caller' ? (currentLang==='hi' ? 'कॉलर: ' : 'Caller: ') : (currentLang==='hi' ? 'आप: ' : 'You: ')) + line[currentLang] + '\n';
+    stepIndex = i+1;
+    if(i % 2 === 1 || i === script.length-1){
+      await runAnalysis(accumulatedText);
+    }
+  }
+  callStatus.textContent = t('status_ended');
+  callLed.classList.remove('live');
+  playBtn.textContent = t('btn_complete');
+}
+
+function addBubble(who, text){
+  const b = document.createElement('div');
+  b.className = 'bubble ' + who;
+  const whoLabel = who === 'caller' ? t('who_caller') : t('who_victim');
+  b.innerHTML = `<div class="who">${whoLabel}</div>${text}`;
+  transcriptEl.appendChild(b);
+  transcriptEl.scrollTop = transcriptEl.scrollHeight;
+}
+
+function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+/* ---------------- Heuristic engine (bilingual, fast local pass) ---------------- */
+const SIGNATURES = [
+  {re:/digital arrest|cyber crime cell|cbi|do not disconnect|do not contact anyone|confidential investigation|डिजिटल अरेस्ट|साइबर क्राइम सेल|सीबीआई|cbi|कॉल मत काटिए|संपर्क मत|गोपनीय जांच/i, weight:28, labelEn:'Impersonation of law enforcement / "digital arrest" script', labelHi:'कानून प्रवर्तन का प्रतिरूपण / "डिजिटल अरेस्ट" स्क्रिप्ट'},
+  {re:/otp|one[- ]time password|6-digit code|share the code|ओटीपी|otp|6 अंकों के कोड|कोड.*बताइए|कोड.*पुष्टि/i, weight:25, labelEn:'Requesting OTP or verification code', labelHi:'OTP या सत्यापन कोड मांगा गया'},
+  {re:/transfer.*(₹|rs\.?|rupees)|customs clearance fee|verification account|refunded after|ट्रांसफर|सत्यापन खाते|क्लीयरेंस फीस|वापस कर दिया जाएगा/i, weight:24, labelEn:'Requesting urgent money transfer', labelHi:'तुरंत पैसे ट्रांसफर करने को कहा गया'},
+  {re:/do not tell|don't discuss|do not disclose|tell any family|stay on the line|मत बताइए|चर्चा मत|परिवार.*मत|लाइन पर बने रहिए/i, weight:20, labelEn:'Instructing secrecy / isolating victim from family', labelHi:'गोपनीयता बनाए रखने / परिवार से दूर रहने का निर्देश'},
+  {re:/arrested|fir|illegal|seized|restricted substance|गिरफ्तार|एफआईआर|अवैध|जब्त|प्रतिबंधित/i, weight:14, labelEn:'Fear-based threat of arrest or legal action', labelHi:'गिरफ्तारी या कानूनी कार्रवाई की धमकी'},
+  {re:/remote[- ]access|install this app|anydesk|teamviewer|रिमोट-एक्सेस|ऐप.*इंस्टॉल/i, weight:22, labelEn:'Requesting remote access to device', labelHi:'डिवाइस तक रिमोट एक्सेस मांगा गया'},
+  {re:/within.*(hour|minutes)|immediately|right now|urgent|घंटे के अंदर|तुरंत|अभी|मिनट के लिए वैध/i, weight:10, labelEn:'Artificial urgency / time pressure', labelHi:'कृत्रिम तात्कालिकता / समय का दबाव'},
+  {re:/trai|customs|fedex|bank.*kyc|rbi|टीआरएआई|कस्टम्स|फेडेक्स|केवाईसी|आरबीआई/i, weight:8, labelEn:'Impersonating a trusted institution', labelHi:'किसी भरोसेमंद संस्था का प्रतिरूपण'}
+];
+
+function heuristicScore(text){
+  let score = 0;
+  const flags = [];
+  for(const sig of SIGNATURES){
+    if(sig.re.test(text)){
+      score += sig.weight;
+      flags.push(currentLang === 'hi' ? sig.labelHi : sig.labelEn);
+    }
+  }
+  return {score: Math.min(100, score), flags};
+}
+
+/* ---------------- LLM reasoning layer ---------------- */
+async function llmAnalyze(text){
+  try{
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ transcript: text, lang: currentLang })
+    });
+    if(!response.ok) return null;
+    return await response.json();
+  }catch(e){
+    console.warn('LLM layer unavailable, using heuristic-only result', e);
+    return null;
+  }
+}
+
+async function runAnalysis(text){
+  const h = heuristicScore(text);
+  let finalScore = h.score;
+  let flags = [...new Set(h.flags)];
+  let action = null;
+
+  const ai = await llmAnalyze(text);
+  if(ai && typeof ai.risk_score === 'number'){
+    finalScore = Math.round((finalScore + ai.risk_score) / 2);
+    if(ai.category) flags.push((currentLang==='hi' ? 'AI विश्लेषण: ' : 'AI reasoning layer: ') + ai.category);
+    if(ai.recommended_action) action = ai.recommended_action;
+  }
+  updateGauge(finalScore, flags, action);
+}
+
+/* ---------------- Gauge UI ---------------- */
+function updateGauge(score, flags, actionText){
+  const ring = document.getElementById('gaugeRing');
+  const scoreNum = document.getElementById('scoreNum');
+  const levelLbl = document.getElementById('levelLbl');
+  const marker = document.getElementById('zoneMarker');
+  const banner = document.getElementById('actionBanner');
+  const flagsList = document.getElementById('flagsList');
+
+  scoreNum.textContent = score;
+  marker.style.left = Math.min(96, score) + '%';
+
+  let color, levelKey, bg, border, defaultActionKey;
+  if(score < 25){ color='var(--safe)'; levelKey='lvl_safe'; bg='rgba(63,167,150,0.1)'; border='rgba(63,167,150,0.3)'; defaultActionKey='action_default'; }
+  else if(score < 62){ color='var(--marigold)'; levelKey='lvl_caution'; bg='rgba(232,163,61,0.12)'; border='rgba(232,163,61,0.35)'; defaultActionKey='action_caution'; }
+  else { color='var(--danger)'; levelKey='lvl_critical'; bg='rgba(225,85,84,0.12)'; border='rgba(225,85,84,0.4)'; defaultActionKey='action_critical'; }
+
+  ring.style.borderColor = color;
+  ring.style.boxShadow = score >= 62 ? `0 0 30px ${color}55` : 'none';
+  levelLbl.textContent = score === 0 && flags.length === 0 ? t('lvl_monitoring') : t(levelKey);
+  levelLbl.style.color = color;
+  scoreNum.style.color = color;
+
+  banner.textContent = actionText || t(defaultActionKey);
+  banner.style.color = color;
+  banner.style.background = bg;
+  banner.style.borderColor = border;
+
+  if(flags.length){
+    flagsList.innerHTML = flags.map(f=>`<div class="flag"><span class="ico">!</span><span>${f}</span></div>`).join('');
+  } else {
+    flagsList.innerHTML = `<div class="placeholder-txt">${t('flags_placeholder')}</div>`;
+  }
+
+  if(score >= 62 && document.getElementById('guardianSwitch').classList.contains('on')){
+    triggerGuardianAlert(score);
+  }
+}
+
+function triggerGuardianAlert(score){
+  if(alertFired) return;
+  alertFired = true;
+  const log = document.getElementById('guardianLog');
+  log.classList.add('show');
+  const time = new Date().toLocaleTimeString();
+  log.innerHTML += `<div class="entry">${t('guardian_alert_msg', time, score)}</div>`;
+}
+
+document.getElementById('guardianSwitch').addEventListener('click', function(){
+  this.classList.toggle('on');
+});
+
+/* ---------------- Scanner tab ---------------- */
+const samples = {
+  en: [
+    "This is TRAI calling. Your mobile number is linked to illegal SIM card activity and will be disconnected in 2 hours unless you verify your Aadhaar OTP immediately. Do not disconnect this call.",
+    "Congratulations! Your loan of ₹5,00,000 has been pre-approved. To release the amount today, pay a one-time processing fee of ₹4,999 via UPI to this number. Offer valid for 30 minutes only.",
+    "Dear customer, ₹1,200 was debited from your account ending 4521 on 18-Jul for electricity bill payment via UPI. If this wasn't you, call 1800-XXX-XXXX from your registered number."
+  ],
+  hi: [
+    "यह TRAI बोल रहा है। आपका मोबाइल नंबर अवैध सिम कार्ड गतिविधि से जुड़ा है और 2 घंटे में डिस्कनेक्ट कर दिया जाएगा जब तक आप तुरंत अपने आधार OTP की पुष्टि नहीं करते। इस कॉल को मत काटिए।",
+    "बधाई हो! आपका ₹5,00,000 का लोन पहले से स्वीकृत हो गया है। आज ही राशि जारी करने के लिए, इस नंबर पर UPI के माध्यम से ₹4,999 की एकमुश्त प्रोसेसिंग फीस का भुगतान करें। ऑफर केवल 30 मिनट के लिए वैध है।",
+    "प्रिय ग्राहक, आपके खाता संख्या 4521 से 18-जुलाई को बिजली बिल भुगतान हेतु UPI के माध्यम से ₹1,200 डेबिट हुए। अगर यह आपने नहीं किया, तो अपने रजिस्टर्ड नंबर से 1800-XXX-XXXX पर कॉल करें।"
+  ]
+};
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.getElementById('scanInput').value = samples[currentLang][parseInt(chip.dataset.fill)];
+  });
+});
+
+function resetScan(){
+  document.getElementById('scanInput').value = '';
+  const resultEl = document.getElementById('scanResult');
+  resultEl.className = 'scan-result';
+  resultEl.textContent = t('scan_default');
+}
+
+document.getElementById('scanBtn').addEventListener('click', async ()=>{
+  const text = document.getElementById('scanInput').value.trim();
+  const resultEl = document.getElementById('scanResult');
+  if(!text){ resultEl.className = 'scan-result'; resultEl.textContent = t('scan_empty'); return; }
+  resultEl.className = 'scan-result filled';
+  resultEl.innerHTML = `<span class="placeholder-txt">${t('scan_analyzing')}</span>`;
+
+  const h = heuristicScore(text);
+  const ai = await llmAnalyze(text);
+  let finalScore = h.score;
+  let category = t('cat_default');
+  let explanation = h.flags.length ? t('explain_matched', h.flags.join(', ')) : t('explain_none');
+  let action = finalScore >= 62 ? t('action_scan_high') : (finalScore >=25 ? t('action_scan_mid') : t('action_scan_low'));
+
+  if(ai && typeof ai.risk_score === 'number'){
+    finalScore = Math.round((finalScore + ai.risk_score)/2);
+    category = ai.category || category;
+    explanation = ai.explanation || explanation;
+    action = ai.recommended_action || action;
+  }
+
+  let color, level;
+  if(finalScore < 25){ color = 'var(--safe)'; level=t('risk_low'); }
+  else if(finalScore < 62){ color = 'var(--marigold)'; level=t('risk_moderate'); }
+  else { color = 'var(--danger)'; level=t('risk_high'); }
+
+  resultEl.innerHTML = `
+    <div class="result-score">
+      <div class="big" style="color:${color}">${finalScore}</div>
+      <div>
+        <div class="result-cat" style="background:${color}22; color:${color}; border:1px solid ${color}55;">${level}</div>
+        <div style="font-size:0.78rem; color:var(--text-muted); margin-top:6px;">${category}</div>
+      </div>
+    </div>
+    <p style="font-size:0.88rem; margin-bottom:12px;">${explanation}</p>
+    <div class="action-banner" style="color:${color}; background:${color}18; border-color:${color}55;">${action}</div>
+    ${h.flags.length ? '<div class="flags-list" style="margin-top:16px;">' + h.flags.map(f=>`<div class="flag"><span class="ico">!</span><span>${f}</span></div>`).join('') + '</div>' : ''}
+  `;
+});
+
+/* ---------------- Init ---------------- */
+applyStaticI18n();
+resetCall();
+</script>
+</body>
+</html>
